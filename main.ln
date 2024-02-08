@@ -1,0 +1,7 @@
+App {
+    class: "hello these are my custom classes",
+    id: "uniqueId",
+
+    h1 { "Hello this is a h1" }
+    p { "Hello this is my {{hello}} app" }
+}
