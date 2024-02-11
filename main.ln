@@ -1,7 +1,12 @@
 App {
-    class: "hello these are my custom classes",
-    id: "uniqueId",
+    uses: [
+        "../other.ln"
+    ],
+    class: "this is my custom class",
+    id: "this is my custom id",
+    number: 123412,
 
     h1 { "Hello this is a h1" }
     p { "Hello this is my {{hello}} app" }
+    div { "Hello this is my new app" }
 }

@@ -1,6 +1,7 @@
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Default, PartialEq, Clone)]
 pub enum TokenType {
     // Special tokens
+    #[default]
     ILLEGAL,
     EOF,
 
@@ -29,6 +30,8 @@ pub enum TokenType {
     RPAREN,
     LBRACE,
     RBRACE,
+    LSQBRACE,
+    RSQBRACE,
 
     // Keywords
     FUNCTION,
@@ -40,7 +43,7 @@ pub enum TokenType {
     RETURN,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Default, PartialEq, Clone)]
 pub struct Token {
     pub tokentype: TokenType,
     pub literal: String, // using String instead of char for consistency

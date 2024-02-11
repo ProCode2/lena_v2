@@ -1,12 +1,16 @@
+mod component;
 mod lexer;
+mod parser;
 mod token;
-use clap::Parser;
 use lexer::Lexer;
+use parser::Parser as MyParser;
 use serde::{Deserialize, Serialize};
 use std::{env, fs};
 use toml;
 
-use token::{Token, TokenType};
+use token::TokenType;
+
+use clap::Parser;
 
 #[derive(Debug, Deserialize, Serialize)]
 struct ProjectConfig {
@@ -30,16 +34,17 @@ fn main() {
     let entry_file_path = current_dir.join(&p_config.entry);
     let entry_code = fs::read_to_string(entry_file_path)
         .expect("read_to_string: entry_file_path: failed to open file");
-    let mut lexer = Lexer::new(entry_code.clone());
-    println!("{:?}", p_config);
-    println!("{:?}", entry_code);
-    println!("{:?}", lexer);
-    loop {
-        let new_token = lexer.next_token();
-        println!("{:?}", new_token);
-        if new_token.tokentype == TokenType::EOF || new_token.tokentype == TokenType::ILLEGAL {
-            println!("last token: {:?}", new_token);
-            break;
-        }
-    }
+    let lx = Lexer::new(entry_code.clone());
+
+    let mut parser = MyParser::new(lx.clone());
+    // parser.load_default_components();
+    // while parser.current_token.tokentype != TokenType::EOF {
+    //     println!("{:#?}", parser.current_token);
+    //     parser.next_token();
+    // }
+    let p = parser.parse_program().unwrap();
+    // // println!("{:#?}", p_config);
+    // // println!("{:#?}", entry_code);
+    println!("{:#?}", p);
+    println!("{:#?}", parser.errors);
 }

@@ -1,6 +1,6 @@
 use crate::token::{self, Token, TokenType};
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Lexer {
     input: String,
     position: usize,
@@ -24,6 +24,9 @@ impl Lexer {
             '{' => Token::new(TokenType::LBRACE, self.ch),
             '}' => Token::new(TokenType::RBRACE, self.ch),
             ':' => Token::new(TokenType::COLON, self.ch),
+            '[' => Token::new(TokenType::LSQBRACE, self.ch),
+            ']' => Token::new(TokenType::RSQBRACE, self.ch),
+            '=' => Token::new(TokenType::EQ, self.ch),
             '"' | '\'' => self.read_string_token(),
             ',' => Token::new(TokenType::COMMA, self.ch),
             '\0' => Token::new(TokenType::EOF, self.ch),
@@ -75,6 +78,15 @@ impl Lexer {
         self.next_position += 1;
     }
 
+    // peek at the next character
+    fn peek_char(&self) -> char {
+        if self.next_position >= self.input.len() {
+            return '\0';
+        } else {
+            return self.input.chars().nth(self.position).unwrap();
+        }
+    }
+
     fn read_string_token(&mut self) -> Token {
         let quote = self.ch;
         // println!("quote = {}", quote);
@@ -88,17 +100,13 @@ impl Lexer {
         // skip the last qoute
         if self.ch == '\0' {
             return Token::new(TokenType::EOF, self.ch);
-        } else if self.ch == quote {
-            self.read_char();
         }
-
         // println!("current char: {}, pos: {}", self.ch, self.position);
-        let literal = self.input[pos..self.position - 1].to_string();
+        let literal = self.input[pos..self.position].to_string();
         // println!("String : {}", literal);
         let mut tk = Token::new(TokenType::STRING, '_');
         tk.literal = literal;
 
-        // println!("current char: {:?}", tk);
         tk
     }
 
