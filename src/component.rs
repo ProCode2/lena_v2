@@ -58,6 +58,19 @@ impl Component {
             x => HtmlTag::NO_TAG(x.to_string()),
         }
     }
+
+    pub fn to_js_object(&self) -> String {
+        format!(
+            "{{tag: '{:?}', value: '{}', children: [{}]}}",
+            self.tag,
+            self.value,
+            self.children
+                .iter()
+                .map(|c| c.to_js_object())
+                .collect::<Vec<String>>()
+                .join(",\n")
+        )
+    }
 }
 
 // pub trait Node {

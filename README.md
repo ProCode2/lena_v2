@@ -96,8 +96,9 @@ entry = "./main.ln"
 ## TODO
 - [x] Create a basic lexer
 - [x] Create a basic parser to parse component body and info
-- [ ] parser should be able to also parse component that another component uses
+- [x] parser should be able to also parse component that another component uses
 - [ ] create Intermediate Representation
 - [ ] Functionality to convert to and from IR
 - [ ] Create the WASM module to generate the DOM from the IR
+- [ ] State of the art error propagation and display
 - [ ] Fine Grained Reactivity
