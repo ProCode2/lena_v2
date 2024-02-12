@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, fmt::format};
 
 use crate::{
     component::{Component, HtmlTag},
@@ -116,42 +116,7 @@ impl Parser {
                 }
                 TokenType::LSQBRACE => {
                     self.next_token();
-                    let vec_value = match self.current_token.tokentype {
-                        TokenType::STRING => {
-                            let mut vec_of_s = Vec::<String>::new();
-                            while !self.cur_token_is(TokenType::RSQBRACE) {
-                                if self.cur_token_is(TokenType::STRING) {
-                                    vec_of_s.push(self.current_token.literal.clone());
-                                    self.next_token();
-                                } else {
-                                    self.errors.push(
-                                        "Can not push anything but string in this list".to_string(),
-                                    );
-                                }
-                            }
-
-                            Value::VECOFSTRING(vec_of_s)
-                        }
-                        TokenType::NUMBER => {
-                            let mut vec_of_i = Vec::<i32>::new();
-                            while !self.cur_token_is(TokenType::RSQBRACE) {
-                                if self.cur_token_is(TokenType::STRING) {
-                                    vec_of_i
-                                        .push(self.current_token.literal.parse::<i32>().unwrap());
-                                    self.next_token();
-                                } else {
-                                    self.errors.push(
-                                        "Can not push anything but string in this list".to_string(),
-                                    );
-                                }
-                            }
-
-                            Value::VECOFNUMBER(vec_of_i)
-                        }
-                        _ => Value::VECOFSTRING(Vec::<String>::new()),
-                    };
-                    self.next_token(); // skip the ']'
-                    self.next_token();
+                    let vec_value = self.parse_vec_value();
                     vec_value
                 }
                 _ => Value::STRING("".to_string()),
@@ -160,6 +125,50 @@ impl Parser {
             vec_of_info.insert(key, value);
         }
         vec_of_info
+    }
+
+    fn parse_vec_of_token(&mut self, tk: TokenType) -> Value {
+        let mut vec_of_tk = Vec::<Value>::new();
+        while !self.cur_token_is(TokenType::RSQBRACE) {
+            if self.cur_token_is(tk.clone()) {
+                match tk {
+                    TokenType::STRING => {
+                        vec_of_tk.push(Value::STRING(self.current_token.literal.clone()));
+                    }
+                    TokenType::NUMBER => {
+                        vec_of_tk.push(Value::NUMBER(
+                            self.current_token.literal.parse::<i32>().unwrap(),
+                        ));
+                    }
+                    _ => (),
+                }
+                self.next_token();
+            } else {
+                self.errors
+                    .push(format!("Can not push anything but {:?} in this list", tk));
+            }
+        }
+
+        match tk {
+            TokenType::STRING => {
+                return Value::VECOFSTRING(vec_of_tk);
+            }
+            TokenType::NUMBER => {
+                return Value::VECOFSTRING(vec_of_tk);
+            }
+            _ => return Value::VECOFSTRING(Vec::<Value>::new()),
+        };
+    }
+
+    fn parse_vec_value(&mut self) -> Value {
+        let v = match self.current_token.tokentype {
+            TokenType::STRING => self.parse_vec_of_token(TokenType::STRING),
+            TokenType::NUMBER => self.parse_vec_of_token(TokenType::NUMBER),
+            _ => Value::VECOFSTRING(Vec::<Value>::new()),
+        };
+        self.next_token(); // skip the ']'
+        self.next_token();
+        v
     }
 
     fn cur_token_is(&self, tokentype: TokenType) -> bool {
@@ -197,6 +206,6 @@ impl Parser {
 pub enum Value {
     STRING(String),
     NUMBER(i32),
-    VECOFNUMBER(Vec<i32>),
-    VECOFSTRING(Vec<String>),
+    VECOFNUMBER(Vec<Value>),
+    VECOFSTRING(Vec<Value>),
 }
