@@ -1,4 +1,4 @@
-use std::{collections::HashMap, fmt::format};
+use std::collections::HashMap;
 
 use crate::{
     component::{Component, HtmlTag},
@@ -12,6 +12,10 @@ pub struct Parser {
     pub current_token: Token,
     peek_token: Token,
     pub errors: Vec<String>,
+
+    // block_depth is used when parsing components recursively to keep track of { } blocks
+    // and the current level of nesting
+    // we don't stop parsing until depth 0 is reached or TOF token
     block_depth: i32,
     known_components: HashMap<HtmlTag, Component>,
 }
@@ -40,6 +44,24 @@ impl Parser {
         match self.current_token.tokentype {
             TokenType::IDENT => {
                 let tag_name = self.current_token.literal.clone();
+                // if we have already parsed this component before
+                // no need to parse again return the prev parsed component
+                if self
+                    .known_components
+                    .contains_key(&Component::tag_from_string(&tag_name))
+                {
+                    self.next_token(); // move to '{'
+                    self.next_token(); // move to '}'
+                    self.next_token();
+                    return Some(
+                        self.known_components
+                            .get(&Component::tag_from_string(&tag_name))
+                            .unwrap()
+                            .clone(),
+                    );
+                }
+
+                // otherwise parse new component
                 let mut component = Component::new(Component::tag_from_string(&tag_name));
                 // Parse the children of the component
                 self.next_if_peek_is(TokenType::LBRACE); // Move to the opening curly brace
@@ -48,6 +70,12 @@ impl Parser {
 
                 // if there are key value pairs parse them
                 component.info = self.parse_component_info();
+
+                // now parse dependency components of this component,
+                // before parsing the body of this component
+                if component.info.contains_key("uses") {
+                    self.parse_dependecy_components(component.info.get("uses").unwrap().clone());
+                }
 
                 if self.cur_token_is(TokenType::RBRACE) {
                     self.block_depth -= 1;
@@ -64,11 +92,36 @@ impl Parser {
                         component.children.push(child);
                     }
                 }
+
+                // add this component to the map of knows components so far
                 self.known_components
                     .insert(Component::tag_from_string(&tag_name), component.clone());
                 Some(component)
             }
             _ => None, // Invalid token for a component
+        }
+    }
+
+    fn parse_dependecy_components(&mut self, cs: Value) {
+        let mut vec_of_paths = Vec::<String>::new();
+        if let Value::VECOFSTRING(vs) = cs {
+            vs.iter().for_each(|p| {
+                if let Value::STRING(path) = p {
+                    vec_of_paths.push(path.to_string());
+                }
+            })
+        }
+        for path in vec_of_paths {
+            println!("Path: {path}");
+            let current_dir = std::env::current_dir().expect("curret_dir: can not get current dir");
+            let file_path = current_dir.join(path);
+            let code_as_str = std::fs::read_to_string(file_path)
+                .expect("read_to_string: entry_file_path: failed to open file");
+            let lx = Lexer::new(code_as_str.clone());
+
+            let mut parser = Parser::new(lx.clone());
+            let c = parser.parse_program().unwrap();
+            self.known_components.insert(c.tag.clone(), c);
         }
     }
 
@@ -154,7 +207,7 @@ impl Parser {
                 return Value::VECOFSTRING(vec_of_tk);
             }
             TokenType::NUMBER => {
-                return Value::VECOFSTRING(vec_of_tk);
+                return Value::VECOFNUMBER(vec_of_tk);
             }
             _ => return Value::VECOFSTRING(Vec::<Value>::new()),
         };
@@ -196,10 +249,6 @@ impl Parser {
             tokentype, found_token
         ));
     }
-
-    // pub fn load_default_components(&mut self) {
-    //     self.known_components = Component::get_default_tags();
-    // }
 }
 
 #[derive(Debug, Clone)]

@@ -1,0 +1,9 @@
+Other {
+    uses: ["./hello.ln"],
+    class: "pretty_component",
+
+
+    h1 { "this is another component that i am using" }
+    p { "Here is some more syntax to parse" }
+    Hello {}
+}

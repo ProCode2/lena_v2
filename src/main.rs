@@ -8,8 +8,6 @@ use serde::{Deserialize, Serialize};
 use std::{env, fs};
 use toml;
 
-use token::TokenType;
-
 use clap::Parser;
 
 #[derive(Debug, Deserialize, Serialize)]

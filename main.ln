@@ -1,12 +1,11 @@
 App {
     uses: [
-        "../other.ln"
+        "./other.ln"
     ],
     class: "this is my custom class",
     id: "this is my custom id",
     number: 123412,
 
-    h1 { "Hello this is a h1" }
-    p { "Hello this is my {{hello}} app" }
-    div { "Hello this is my new app" }
+    Other {}
+    h1 { "can we parse the component above?" }
 }

@@ -50,11 +50,6 @@ impl Component {
         }
     }
 
-    // pub fn get_default_tags() -> Vec<Component> {
-    //     let default_map = HashMap::<HtmlTag, Component>::new();
-    //     DEFAULT_TAGS.map(|tag| default_map.insert(tag, Component::new(tag)))
-    // }
-
     pub fn tag_from_string(string_tag: &str) -> HtmlTag {
         match string_tag {
             "h1" => HtmlTag::H1,
