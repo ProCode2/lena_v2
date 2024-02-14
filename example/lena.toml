@@ -1,4 +1,4 @@
 entry = "./main.ln"
 
 [build]
-dir = "build"
+dir = "../build"

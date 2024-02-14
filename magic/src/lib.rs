@@ -36,15 +36,6 @@ impl El {
     }
 }
 
-// Called when the wasm module is instantiated
-#[wasm_bindgen(start)]
-fn main() -> Result<(), JsValue> {
-    // Use `web_sys`'s global `window` function to get a handle on the global
-    // window object.
-
-    Ok(())
-}
-
 #[wasm_bindgen]
 pub fn mount() {
     let el = El::new("p").on("click", move |_| {
