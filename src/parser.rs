@@ -5,6 +5,7 @@ use crate::{
     lexer::Lexer,
     token::{Token, TokenType},
 };
+use serde;
 
 #[derive(Debug, Default)]
 pub struct Parser {

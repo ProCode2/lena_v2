@@ -34,13 +34,14 @@ fn scaffold_build_dir(path: PathBuf, js_obj_str: String) {
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
         <title>Lena - The Great Programming Language</title>
         <link rel="stylesheet" href="./style.css" />
         <link rel="icon" href="./favicon.ico" type="image/x-icon" />
     </head>
     <body>
         <main id="app"></main>
-        <script src="./index.js"></script>
+        <script type="module" src="./index.js"></script>
     </body>
 </html>"#;
     let _created = fs::write(html_path, html_code)
@@ -50,9 +51,14 @@ fn scaffold_build_dir(path: PathBuf, js_obj_str: String) {
     let _created_js = fs::write(
         js_path,
         format!(
-            r#"function mount(rep){{console.log("My IR is: ", rep)}};
+            r#"import init, {{ mount }} from './pkg/magic.js';
+async function run(ir) {{
+    await init();
+    mount(ir);
+}}
 let ir = {};
-mount(ir)"#,
+run(ir);
+"#,
             js_obj_str
         ),
     );
