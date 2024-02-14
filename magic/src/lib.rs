@@ -32,7 +32,7 @@ pub enum Value {
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Component {
-    pub tag: HtmlTag,
+    pub tag: String,
     pub children: Vec<Component>,
     pub value: String,
     // pub info: HashMap<String, Value>, // store css and attributes refactor later
@@ -73,6 +73,31 @@ impl El {
         self.set_text_content(Some(txt));
         self
     }
+
+    pub fn child(self, e: El) -> Self {
+        let _ = self.append_child(&e);
+        self
+    }
+}
+
+fn tagify(tag: &str) -> &str {
+    match tag {
+        "h1" | "h2" | "h3" | "h4" | "div" | "p" | "text" => tag,
+        _ => "div",
+    }
+}
+
+fn create_dom_from_ir(root: Component) -> El {
+    console::log_1(&to_value(&root.tag).unwrap());
+    let mut e = El::new(tagify(&root.tag));
+    if root.children.len() == 1 && root.children[0].tag == "text" {
+        e = e.text(&root.children[0].value);
+    } else {
+        root.children.into_iter().for_each(|c| {
+            e = e.clone().child(create_dom_from_ir(c));
+        });
+    }
+    e
 }
 
 #[wasm_bindgen]
@@ -81,17 +106,13 @@ pub fn mount(c_tree: JsValue) {
     let c_tree: Component = from_value(c_tree)
         .map_err(|err| console::log_1(&to_value("Hello12232").unwrap()))
         .unwrap();
-    let tag_name = match c_tree.tag {
-        HtmlTag::NOTAG(x) => x,
-        _ => String::new(),
-    };
-    let el = El::new("p")
-        .on("click", move |_| {
-            console::log_1(&to_value("clicked").unwrap())
-        })
-        .text(&tag_name);
+    let node = create_dom_from_ir(c_tree.clone());
+
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");
-    let body = document.body().expect("document should have body");
-    let _ = body.append_child(&el).map_err(|err| console::log_1(&err));
+    let body = document
+        .query_selector("#app")
+        .expect("document should have body")
+        .unwrap();
+    let _ = body.append_child(&node).expect("can not add app to page");
 }

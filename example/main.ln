@@ -4,8 +4,9 @@ App {
     ],
     class: "this is my custom class",
     id: "this is my custom id",
-    number: 123412,
 
-    Other {}
     h1 { "can we parse the component above?" }
+    Other {}
+    Other {}
+
 }

@@ -42,6 +42,7 @@ impl Parser {
     }
 
     fn parse_component(&mut self) -> Option<Component> {
+        let mydepth = self.block_depth;
         match self.current_token.tokentype {
             TokenType::IDENT => {
                 let tag_name = self.current_token.literal.clone();
@@ -81,12 +82,13 @@ impl Parser {
                 if self.cur_token_is(TokenType::RBRACE) {
                     self.block_depth -= 1;
                 }
-                while !(self.block_depth == 0 || self.cur_token_is(TokenType::EOF))
-                    && !self.cur_token_is(TokenType::ILLEGAL)
+                while !(self.block_depth == mydepth || self.cur_token_is(TokenType::EOF))
+                    || !self.cur_token_is(TokenType::ILLEGAL)
                 {
                     while self.cur_token_is(TokenType::RBRACE) {
                         self.block_depth -= 1;
                         self.next_token();
+                        return Some(component);
                     }
 
                     if let Some(child) = self.parse_child() {
@@ -94,7 +96,7 @@ impl Parser {
                     }
                 }
 
-                // add this component to the map of knows components so far
+                // add this component to the map of known components so far
                 self.known_components
                     .insert(Component::tag_from_string(&tag_name), component.clone());
                 Some(component)
