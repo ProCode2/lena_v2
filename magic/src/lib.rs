@@ -35,7 +35,7 @@ pub struct Component {
     pub tag: String,
     pub children: Vec<Component>,
     pub value: String,
-    // pub info: HashMap<String, Value>, // store css and attributes refactor later
+    pub info: HashMap<String, Value>, // store css and attributes refactor later
 }
 
 #[derive(Debug, Clone)]
@@ -78,6 +78,12 @@ impl El {
         let _ = self.append_child(&e);
         self
     }
+
+    // this implementation is subjct to change
+    pub fn css(self, css: &str) -> Self {
+        let _ = self.set_attribute("style", css);
+        self
+    }
 }
 
 fn tagify(tag: &str) -> &str {
@@ -96,6 +102,15 @@ fn create_dom_from_ir(root: Component) -> El {
         root.children.into_iter().for_each(|c| {
             e = e.clone().child(create_dom_from_ir(c));
         });
+    }
+
+    if root.info.contains_key("css") {
+        let styles = match root.info.get("css").unwrap() {
+            Value::STRING(x) => x,
+            _ => "",
+        };
+
+        e = e.css(styles);
     }
     e
 }

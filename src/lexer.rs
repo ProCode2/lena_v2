@@ -63,7 +63,7 @@ impl Lexer {
     fn read_identifier(&mut self) -> String {
         let position = self.position; // starting point
                                       // read the full identifier
-        while self.ch.is_alphanumeric() {
+        while self.ch.is_alphanumeric() || self.ch == '-' || self.ch == '_' {
             self.read_char()
         }
         self.input[position..self.position].to_string()

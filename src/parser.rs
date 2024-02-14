@@ -5,7 +5,6 @@ use crate::{
     lexer::Lexer,
     token::{Token, TokenType},
 };
-use serde;
 
 #[derive(Debug, Default)]
 pub struct Parser {
@@ -152,10 +151,16 @@ impl Parser {
     fn parse_component_info(&mut self) -> HashMap<String, Value> {
         let mut vec_of_info = HashMap::<String, Value>::new();
         while self.peek_token_is(TokenType::COLON) {
+            println!("{:?}", self.current_token);
             let key = self.current_token.literal.clone();
+
             self.next_token(); // move to the colon
             self.next_token(); // move to the starting of the value for the key
-
+            if key == "css" {
+                let v = self.parse_css();
+                vec_of_info.insert(key, v);
+                continue;
+            }
             // for now it can be a string or an list of strings
             let value: Value = match self.current_token.tokentype {
                 TokenType::STRING => {
@@ -181,6 +186,35 @@ impl Parser {
             vec_of_info.insert(key, value);
         }
         vec_of_info
+    }
+
+    // TODO: Change this implementation later
+    fn parse_css(&mut self) -> Value {
+        if self.cur_token_is(TokenType::LBRACE) {
+            self.next_token();
+        }
+        let mut vec_of_css = Vec::<String>::new();
+        while self.peek_token_is(TokenType::COLON) {
+            let key = self.current_token.literal.clone();
+            self.next_token(); // move to colon
+            self.next_token(); // move to the value
+            println!("css::::{} {:?}", key, self.current_token);
+            if !self.cur_token_is(TokenType::STRING) {
+                self.errors
+                    .push("parse_css: CSS values must be a string".to_string());
+            }
+            let v = self.current_token.literal.clone();
+            self.next_token();
+
+            vec_of_css.push(format!("{}: {}", key, v));
+        }
+        if self.cur_token_is(TokenType::RBRACE) {
+            self.next_token();
+        }
+        if self.cur_token_is(TokenType::COMMA) {
+            self.next_token();
+        }
+        Value::STRING(vec_of_css.join(";"))
     }
 
     fn parse_vec_of_token(&mut self, tk: TokenType) -> Value {

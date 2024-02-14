@@ -2,10 +2,24 @@ App {
     uses: [
         "./other.ln"
     ],
+    css: {
+        display: "flex"
+        justify-content: "center"
+        flex-direction: "column"
+    },
     class: "this is my custom class",
     id: "this is my custom id",
 
-    h1 { "can we parse the component above?" }
+
+    h1 {
+        css: {
+        text-align: "center"
+        background: "grey"
+        color: "green"
+        }
+
+        "can we parse the component above?"
+    }
     Other {}
     Other {}
 
