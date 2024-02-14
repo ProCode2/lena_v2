@@ -1,3 +1,5 @@
+cd example2 && cargo run -- -b && \
+cd .. && \
 rm -rf build/pkg && \
 cd magic && \
 wasm-pack build --target web && \

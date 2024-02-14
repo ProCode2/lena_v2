@@ -1,0 +1,15 @@
+Magic {
+    div {
+        css: {
+            display: "flex"
+            flex-direction: "column"
+            justify-content: "center"
+            align-items: "center"
+            color: "red"
+        }
+
+        p { "This is a totally reusable component" }
+        p { "believe me" }
+        p { "I promise"  }
+    }
+}

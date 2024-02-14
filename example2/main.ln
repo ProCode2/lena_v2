@@ -1,0 +1,23 @@
+App {
+    uses: [
+        "./magic.ln"
+    ],
+    css: {
+        width: "100vw"
+        height: "100vh"
+        padding: "10px"
+        background: "#222"
+        font-size: "16px"
+        color: "white"
+    }
+
+
+    h1 {
+        css: {
+            text-align: "center"
+        }
+        "this is the header of my app"
+    }
+    Magic {}
+    Magic {}
+}
