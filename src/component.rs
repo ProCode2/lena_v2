@@ -11,20 +11,10 @@ pub enum HtmlTag {
     P,
     #[default]
     DIV,
+    IMG,
     NOTAG(String),
     TEXT,
 }
-
-const DEFAULT_TAGS: [HtmlTag; 8] = [
-    HtmlTag::H1,
-    HtmlTag::H2,
-    HtmlTag::H3,
-    HtmlTag::H4,
-    HtmlTag::H5,
-    HtmlTag::H6,
-    HtmlTag::P,
-    HtmlTag::DIV,
-];
 
 #[derive(Debug, Default, Clone)]
 pub struct Component {
@@ -55,6 +45,7 @@ impl Component {
             "h1" => HtmlTag::H1,
             "p" => HtmlTag::P,
             "div" => HtmlTag::DIV,
+            "img" => HtmlTag::IMG,
             x => HtmlTag::NOTAG(x.to_string()),
         }
     }
@@ -90,6 +81,7 @@ impl Component {
             HtmlTag::DIV => "div".to_string(),
             HtmlTag::NOTAG(x) => x,
             HtmlTag::TEXT => "text".to_string(),
+            HtmlTag::IMG => "img".to_string(),
         }
     }
 

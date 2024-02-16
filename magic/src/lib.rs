@@ -17,6 +17,7 @@ pub enum HtmlTag {
     P,
     #[default]
     DIV,
+    IMG,
     NOTAG(String),
     TEXT,
 }
@@ -84,11 +85,16 @@ impl El {
         let _ = self.set_attribute("style", css);
         self
     }
+
+    pub fn attr(self, key: &str, val: &str) -> Self {
+        let _ = self.set_attribute(key, val);
+        self
+    }
 }
 
 fn tagify(tag: &str) -> &str {
     match tag {
-        "h1" | "h2" | "h3" | "h4" | "div" | "p" | "text" => tag,
+        "h1" | "h2" | "h3" | "h4" | "div" | "p" | "text" | "img" => tag,
         _ => "div",
     }
 }
@@ -104,14 +110,23 @@ fn create_dom_from_ir(root: Component) -> El {
         });
     }
 
-    if root.info.contains_key("css") {
-        let styles = match root.info.get("css").unwrap() {
-            Value::STRING(x) => x,
-            _ => "",
-        };
+    for (k, v) in &root.info {
+        if k == "css" {
+            let styles = match root.info.get("css").unwrap() {
+                Value::STRING(x) => x,
+                _ => "",
+            };
 
-        e = e.css(styles);
+            e = e.css(styles);
+        } else {
+            let val = match v {
+                Value::STRING(st) => st,
+                _ => "",
+            };
+            e = e.attr(&k, &val);
+        }
     }
+
     e
 }
 

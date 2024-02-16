@@ -81,10 +81,12 @@ impl Parser {
                 if self.cur_token_is(TokenType::RBRACE) {
                     self.block_depth -= 1;
                 }
-                while !(self.block_depth == mydepth || self.cur_token_is(TokenType::EOF))
-                    || !self.cur_token_is(TokenType::ILLEGAL)
+                while (self.block_depth >= mydepth)
+                    && !self.cur_token_is(TokenType::EOF)
+                    && !self.cur_token_is(TokenType::ILLEGAL)
                 {
-                    while self.cur_token_is(TokenType::RBRACE) {
+                    println!("{} {:?}", mydepth, self.current_token);
+                    if self.cur_token_is(TokenType::RBRACE) {
                         self.block_depth -= 1;
                         self.next_token();
                         return Some(component);
@@ -240,14 +242,10 @@ impl Parser {
         }
 
         match tk {
-            TokenType::STRING => {
-                return Value::VECOFSTRING(vec_of_tk);
-            }
-            TokenType::NUMBER => {
-                return Value::VECOFNUMBER(vec_of_tk);
-            }
-            _ => return Value::VECOFSTRING(Vec::<Value>::new()),
-        };
+            TokenType::STRING => Value::VECOFSTRING(vec_of_tk),
+            TokenType::NUMBER => Value::VECOFNUMBER(vec_of_tk),
+            _ => Value::VECOFSTRING(Vec::<Value>::new()),
+        }
     }
 
     fn parse_vec_value(&mut self) -> Value {
